@@ -43,6 +43,53 @@ The following list summarizes the most important changes inherited from upstream
   * Fixed an issue that caused an interrupted swap-move operation to potentially brick the device if the primary image was padded.
   * Various fixes, enhancements, and changes needed to work with the latest Zephyr version.
 
+Thread
+------
+
+* Added:
+
+  * Development support for the nRF5340 DK in single-protocol configuration for the :ref:`ot_cli_sample`, :ref:`coap_client_sample`, and :ref:`coap_server_sample` samples.
+
+* Optimized ROM and RAM used by Thread samples.
+* Disabled Hardware Flow Control on the serial port in :ref:`coap_client_sample` and :ref:`coap_server_sample` samples.
+
+Zigbee
+------
+
+* Added:
+
+  * Development support for the nRF5340 DK in single-protocol configuration for the :ref:`zigbee_light_switch_sample`, :ref:`zigbee_light_bulb_sample`, and :ref:`zigbee_network_coordinator_sample` samples.
+
+* Updated:
+
+  * Updated :ref:`zboss` to version ``3_3_0_6+11_30_2020``.
+    See :ref:`nrfxlib:zboss_changelog` for detailed information.
+
+Bluetooth Mesh
+--------------
+
+* Added:
+
+  * Time client model callbacks for all message types.
+  * Support for the nRF52833 DK in the :ref:`bluetooth_mesh_light` and :ref:`bluetooth_mesh_light_switch` samples.
+
+nRF9160
+=======
+
+* Updated:
+
+  * :ref:`lib_download_client` library:
+
+    * Re-introduced optional TCP timeout (enabled by default) on the TCP socket used for the download.
+      Upon timeout on a TCP socket, the HTTP download will fail and the ``ETIMEDOUT`` error will be returned via the callback handler.
+    * Added an option to set the hostname for TLS Server Name Indication (SNI) extension.
+      This option is valid only when TLS is enabled.
+
+Common
+======
+
+The following changes are relevant for all device families.
+
 sdk-nrfxlib
 ===========
 
