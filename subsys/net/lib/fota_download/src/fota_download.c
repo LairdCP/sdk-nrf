@@ -35,7 +35,7 @@ static struct download_client   dlc;
 static struct k_delayed_work    dlc_with_offset_work;
 static int socket_retries_left;
 #ifdef CONFIG_DFU_TARGET_MCUBOOT
-static uint8_t mcuboot_buf[CONFIG_FOTA_DOWNLOAD_MCUBOOT_FLASH_BUF_SZ];
+static uint8_t mcuboot_buf[CONFIG_FOTA_DOWNLOAD_MCUBOOT_FLASH_BUF_SZ] __attribute__((aligned (4)));
 #endif
 static void send_evt(enum fota_download_evt_id id)
 {
