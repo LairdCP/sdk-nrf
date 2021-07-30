@@ -5,4 +5,3 @@
 #
 
 add_subdirectory_ifdef(CONFIG_BUILD_WITH_TFM tfm/zephyr)
-add_subdirectory_ifdef(CONFIG_MEMFAULT memfault)
