@@ -100,6 +100,15 @@ typedef void (*bt_dfu_smp_rsp_part_cb)(struct bt_dfu_smp *dfu_smp);
 typedef void (*bt_dfu_smp_error_cb)(struct bt_dfu_smp *dfu_smp,
 					 int err);
 
+/** @brief Global function that is called when a notification is received.
+ * 
+ * This function is NOT used when a response is expected, but for
+ * unsolicited notifications from the server.
+ * 
+ * @param dfu_smp DFU SMP Client instance.
+ */
+typedef void (*bt_dfu_smp_notif_cb)(struct bt_dfu_smp *dfu_smp);
+
 /**
  * @brief DFU SMP Client parameters for the initialization function.
  */
@@ -109,6 +118,12 @@ struct bt_dfu_smp_init_params {
 	 *  This function is called when an error occurs.
 	 */
 	bt_dfu_smp_error_cb error_cb;
+
+	/** @brief Callback pointer for notification handler.
+	 *
+	 *  This function is called when a notification is received
+	 */
+	bt_dfu_smp_notif_cb notif_cb;
 };
 
 /**
@@ -139,6 +154,11 @@ struct bt_dfu_smp {
 		 * finished.
 		 */
 		bt_dfu_smp_rsp_part_cb rsp_part;
+		/** @brief Callback pointer for notification handler.
+	 	*
+	 	*  This function is called when a notification is received
+	 	*/
+		bt_dfu_smp_notif_cb notif_cb;
 	} cbs;
 	/** @brief Response notification parameters.
 	 *
