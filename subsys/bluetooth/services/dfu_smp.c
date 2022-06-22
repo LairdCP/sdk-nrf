@@ -43,7 +43,7 @@ static uint8_t notify_process(struct bt_conn *conn,
 		return BT_GATT_ITER_STOP;
 	}
 
-	if (dfu_smp->cbs.rsp_part) {
+	if (dfu_smp->cbs.rsp_part || dfu_smp->cbs.notif_cb) {
 		dfu_smp->rsp_state.chunk_size = length;
 		dfu_smp->rsp_state.data       = data;
 		if (dfu_smp->rsp_state.offset == 0) {
@@ -57,13 +57,19 @@ static uint8_t notify_process(struct bt_conn *conn,
 			total_len += sizeof(struct bt_dfu_smp_header);
 			dfu_smp->rsp_state.total_size = total_len;
 		}
-		dfu_smp->cbs.rsp_part(dfu_smp);
+
+		if (dfu_smp->cbs.rsp_part) {
+			dfu_smp->cbs.rsp_part(dfu_smp);
+		} else if (dfu_smp->cbs.notif_cb) {
+			dfu_smp->cbs.notif_cb(dfu_smp);
+		}
 
 		dfu_smp->rsp_state.offset += length;
 		if (dfu_smp->rsp_state.offset >=
 			dfu_smp->rsp_state.total_size) {
 			/* Whole response has been received */
 			dfu_smp->cbs.rsp_part = NULL;
+			memset(&(dfu_smp->rsp_state), 0, sizeof(dfu_smp->rsp_state));
 		}
 
 
@@ -82,6 +88,7 @@ int bt_dfu_smp_init(struct bt_dfu_smp *dfu_smp,
 	}
 	memset(dfu_smp, 0, sizeof(*dfu_smp));
 	dfu_smp->cbs.error_cb = params->error_cb;
+	dfu_smp->cbs.notif_cb = params->notif_cb;
 	return 0;
 }
 
