@@ -13,6 +13,9 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(dfu_smp, CONFIG_BT_DFU_SMP_LOG_LEVEL);
 
+/* Number of bytes of overhead in a GATT write (bytes taken from MTU size) */
+#define GATT_WRITE_OVERHEAD 3
+
 
 /** @brief Notification callback function
  *
@@ -152,10 +155,6 @@ int bt_dfu_smp_command(struct bt_dfu_smp *dfu_smp,
 	}
 
 	mtu = bt_gatt_get_mtu(dfu_smp->conn);
-	if (cmd_size > mtu) {
-		LOG_ERR("Command size (%u) cannot fit MTU (%u)", cmd_size, mtu);
-		return -EMSGSIZE;
-	}
 	if (dfu_smp->cbs.rsp_part) {
 		return -EBUSY;
 	}
@@ -179,14 +178,22 @@ int bt_dfu_smp_command(struct bt_dfu_smp *dfu_smp,
 	}
 	memset(&dfu_smp->rsp_state, 0, sizeof(dfu_smp->rsp_state));
 	dfu_smp->cbs.rsp_part = rsp_cb;
-	/* Send request */
-	ret = bt_gatt_write_without_response(dfu_smp->conn,
-					     dfu_smp->handles.smp,
-					     cmd_data,
-					     cmd_size,
-					     false);
-	if (ret) {
-		dfu_smp->cbs.rsp_part = NULL;
+
+	/* Send chunks that fit into the MTU */
+	while (cmd_size > 0) {
+		size_t this_size = cmd_size;
+		if (this_size > (mtu - GATT_WRITE_OVERHEAD)) {
+			this_size = mtu - GATT_WRITE_OVERHEAD;
+		}
+		ret = bt_gatt_write_without_response(dfu_smp->conn,
+			dfu_smp->handles.smp,
+			cmd_data, this_size, false);
+		if (ret) {
+			dfu_smp->cbs.rsp_part = NULL;
+			break;
+		}
+		cmd_size -= this_size;
+		cmd_data = ((char *)cmd_data) + this_size;
 	}
 
 	return ret;
