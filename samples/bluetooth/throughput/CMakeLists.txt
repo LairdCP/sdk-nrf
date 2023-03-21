@@ -8,10 +8,6 @@ cmake_minimum_required(VERSION 3.20.0)
 
 set(DTC_OVERLAY_FILE "dts.overlay")
 
-if(BOARD STREQUAL bl5340pa_dvk_cpuapp)
-    set(hci_rpmsg_OVERLAY_CONFIG ${CMAKE_SOURCE_DIR}/child_image/hci_rpmsg.bl5340pa.conf)
-endif()
-
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(NONE)
 
