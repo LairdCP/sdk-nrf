@@ -707,15 +707,16 @@ int test_run(const struct shell *shell,
 		return -EFAULT;
 	}
 
-	if (role_selected && role_central) {
+	if (role_selected && !role_central) {
 		shell_error(shell,
 		"'run' command shall be executed only on the central board");
+		return -EPERM;
 	}
 
 	if (!test_ready) {
 		shell_error(shell, "Device is not ready."
 			"Please wait for the service discovery and MTU exchange end");
-		return 0;
+		return -EPERM;
 	}
 
 	shell_print(shell, "\n==== Starting throughput test ====");
