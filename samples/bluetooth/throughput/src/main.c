@@ -832,12 +832,12 @@ void main(void)
 	printk("\n");
 #if defined(CONFIG_DK_LIBRARY)
 	printk("Press button 1 or type \"central\" on the central board.\n");
-	printk("Press button 2 or type \"peripheral\" or \"peripheral_coded\" "
+	printk("Press button 2 or type \"peripheral\" or \"coded\" "
 	       "on the peripheral board.\n");
 	buttons_init();
 #else
 	printk("Type \"central\" on the central board.\n");
-	printk("Type \"peripheral\" or \"peripheral_coded\" on the peripheral board.\n");
+	printk("Type \"peripheral\" or \"coded\" on the peripheral board.\n");
 #endif
 
 }

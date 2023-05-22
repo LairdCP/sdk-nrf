@@ -313,6 +313,6 @@ SHELL_CMD_REGISTER(run, NULL, "Run the test", test_run_cmd);
 SHELL_CMD_REGISTER(central, NULL, "Select central role", test_central_cmd);
 SHELL_CMD_REGISTER(peripheral, NULL, "Select peripheral role", test_peripheral_cmd);
 #if defined(CONFIG_BT_EXT_ADV)
-SHELL_CMD_REGISTER(peripheral_coded, NULL, "Select peripheral role and advertise using coded PHY",
+SHELL_CMD_REGISTER(coded, NULL, "Select peripheral role and advertise using coded PHY",
 		   test_peripheral_coded_cmd);
 #endif
