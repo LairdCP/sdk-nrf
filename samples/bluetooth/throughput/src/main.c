@@ -78,6 +78,10 @@ static void button_handler_cb(uint32_t button_state, uint32_t has_changed);
 static void remove_button_handlers(void);
 #endif
 
+static void restart_ble_handler(struct k_work *work);
+
+static K_WORK_DEFINE(restart_ble, restart_ble_handler);
+
 static const char *phy2str(uint8_t phy)
 {
 	switch (phy) {
@@ -104,8 +108,8 @@ void scan_filter_match(struct bt_scan_device_info *device_info,
 
 	bt_addr_le_to_str(device_info->recv_info->addr, addr, sizeof(addr));
 
-	printk("Filters matched. Address: %s connectable: %d\n",
-		addr, connectable);
+	printk("Filters matched. Address: %s connectable: %d RSSI: %d\n", addr, connectable,
+	       device_info->recv_info->rssi);
 }
 
 void scan_filter_no_match(struct bt_scan_device_info *device_info,
@@ -115,8 +119,7 @@ void scan_filter_no_match(struct bt_scan_device_info *device_info,
 
 	bt_addr_le_to_str(device_info->recv_info->addr, addr, sizeof(addr));
 
-	printk("Filter not match. Address: %s connectable: %d\n",
-				addr, connectable);
+	printk("Discarded. Address: %s connectable: %d\n", addr, connectable);
 }
 
 void scan_connecting_error(struct bt_scan_device_info *device_info)
@@ -269,13 +272,10 @@ static void scan_init(void)
 
 static void scan_start(void)
 {
-	int err;
+	int r;
 
-	err = bt_scan_start(BT_SCAN_TYPE_SCAN_PASSIVE);
-	if (err) {
-		printk("Starting scanning failed (err %d)\n", err);
-		return;
-	}
+	r = bt_scan_start(BT_SCAN_TYPE_SCAN_PASSIVE);
+	printk("Start scanning: %d\n", r);
 }
 
 static void adv_start_legacy(void)
@@ -329,15 +329,10 @@ static int adv_create_coded(void)
 
 static void adv_start_coded(void)
 {
-	int err;
+	int r;
 
-	err = bt_le_ext_adv_start(adv, NULL);
-	if (err) {
-		printk("Failed to start advertising set (err %d)\n", err);
-		return;
-	}
-
-	printk("Advertiser %p set started\n", adv);
+	r = bt_le_ext_adv_start(adv, NULL);
+	printk("Advertiser %p set started: %d\n", adv, r);
 }
 #endif
 
@@ -376,8 +371,18 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 		return;
 	}
 
-	/* Re-connect using same roles */
-	if (info.role == BT_CONN_ROLE_CENTRAL) {
+	err = k_work_submit(&restart_ble);
+	if (err < 0) {
+		printk("Failed to submit restart %d", err);
+	}
+}
+
+static void restart_ble_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+
+	/* Re-connect using previous role */
+	if (role_central) {
 		scan_start();
 	} else {
 		adv_start();
