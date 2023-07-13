@@ -28,7 +28,7 @@
 
 #include "main.h"
 
-#define VERSION_STR "1.1.0." CONFIG_BT_THROUGHPUT_BUILD_VERSION
+#define VERSION_STR "1.2.0." CONFIG_BT_THROUGHPUT_BUILD_VERSION
 
 #define DEVICE_NAME	CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
@@ -288,14 +288,10 @@ static void adv_start_legacy(void)
 				BT_GAP_ADV_FAST_INT_MIN_2,
 				BT_GAP_ADV_FAST_INT_MAX_2,
 				NULL);
-	int err;
+	int r;
 
-	err = bt_le_adv_start(adv_param, ad, ARRAY_SIZE(ad), sd,
-			      ARRAY_SIZE(sd));
-	if (err) {
-		printk("Failed to start advertiser (%d)\n", err);
-		return;
-	}
+	r = bt_le_adv_start(adv_param, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	printk("Start advertiser: %d\n", r);
 }
 
 #if defined(CONFIG_BT_EXT_ADV)
@@ -350,7 +346,7 @@ static void adv_start(void)
 #endif
 	{
 		adv_start_legacy();
-	}	
+	}
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
