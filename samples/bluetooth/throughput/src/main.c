@@ -28,6 +28,8 @@
 
 #include "main.h"
 
+#define VERSION_STR "1.1.0." CONFIG_BT_THROUGHPUT_BUILD_VERSION
+
 #define DEVICE_NAME	CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
 #define INTERVAL_MIN	0x140	/* 320 units, 400 ms */
@@ -818,6 +820,7 @@ void main(void)
 	int err;
 
 	printk("Starting Bluetooth Throughput example on %s\n", CONFIG_BOARD);
+	printk("Version %s\n", VERSION_STR);
 
 	err = bt_enable(NULL);
 	if (err) {

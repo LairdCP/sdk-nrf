@@ -16,4 +16,8 @@ config BT_THROUGHPUT_DURATION
 	int "Throughput test duration in milliseconds"
 	default 20000
 
+config BT_THROUGHPUT_BUILD_VERSION
+	string "UTC of build (from CMake)"
+	default "0"
+
 endmenu
