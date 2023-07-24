@@ -56,7 +56,7 @@ static bool connection_params_set;
 
 #if defined(CONFIG_BT_EXT_ADV)
 static bool adv_set_created;
-static bool adv_coded;
+static bool adv_ext;
 static struct bt_le_ext_adv *adv;
 #endif
 
@@ -295,16 +295,31 @@ static void adv_start_legacy(void)
 }
 
 #if defined(CONFIG_BT_EXT_ADV)
-static int adv_create_coded(void)
+static int adv_create_ext(const struct bt_conn_le_phy_param *phy)
 {
 	int err;
 	struct bt_le_adv_param param =
 		BT_LE_ADV_PARAM_INIT(BT_LE_ADV_OPT_CONNECTABLE |
-				     BT_LE_ADV_OPT_EXT_ADV |
-				     BT_LE_ADV_OPT_CODED,
+				     BT_LE_ADV_OPT_EXT_ADV,
 				     BT_GAP_ADV_FAST_INT_MIN_2,
 				     BT_GAP_ADV_FAST_INT_MAX_2,
 				     NULL);
+
+	if (phy) {
+		/* Configure options for PHY */
+		switch (phy->options) {
+		case BT_CONN_LE_PHY_OPT_CODED_S2:
+		case BT_CONN_LE_PHY_OPT_CODED_S8:
+			param.options |= BT_LE_ADV_OPT_CODED;
+			break;
+		case BT_CONN_LE_PHY_OPT_NONE:
+			if (phy->pref_rx_phy == BT_GAP_LE_PHY_1M) {
+				param.options |= BT_LE_ADV_OPT_NO_2M;
+			}
+		default:
+			break;
+		}
+	}
 
 	err = bt_le_ext_adv_create(&param, NULL, &adv);
 	if (err) {
@@ -325,7 +340,7 @@ static int adv_create_coded(void)
 	return 0;
 }
 
-static void adv_start_coded(void)
+static void adv_start_extended(void)
 {
 	int r;
 
@@ -337,11 +352,8 @@ static void adv_start_coded(void)
 static void adv_start(void)
 {
 #if defined(CONFIG_BT_EXT_ADV)
-	if (adv_coded) {
-		if (!adv_set_created) {
-			adv_create_coded();
-		}
-		adv_start_coded();
+	if (adv_ext) {
+		adv_start_extended();
 	} else
 #endif
 	{
@@ -545,22 +557,24 @@ static struct button_handler button = {
 };
 #endif
 
-void select_role(bool is_central, bool coded)
+void select_role(bool is_central, const struct bt_conn_le_phy_param *phy)
 {
 	if (role_selected) {
 		printk("\nCannot change role after it was selected.\n");
 		return;
 	}
-	
-#if defined(CONFIG_BT_EXT_ADV)
-	adv_coded = coded;
-#endif
 
 	if (is_central) {
 		printk("\nCentral. Starting scanning\n");
 		role_central = true;
 		scan_start();
 	} else {
+#if defined(CONFIG_BT_EXT_ADV)
+		if (phy) {
+			adv_ext = true;
+			adv_create_ext(phy);
+		}
+#endif
 		printk("\nPeripheral. Starting advertising\n");
 		adv_start();
 	}
@@ -589,9 +603,9 @@ static void button_handler_cb(uint32_t button_state, uint32_t has_changed)
 	ARG_UNUSED(has_changed);
 
 	if (button_state & DK_BTN1_MSK) {
-		select_role(true, false);
+		select_role(true, NULL);
 	} else if (button_state & DK_BTN2_MSK) {
-		select_role(false, false);
+		select_role(false, NULL);
 	}
 }
 
@@ -837,12 +851,10 @@ void main(void)
 	printk("\n");
 #if defined(CONFIG_DK_LIBRARY)
 	printk("Press button 1 or type \"central\" on the central board.\n");
-	printk("Press button 2 or type \"peripheral\" or \"coded\" "
-	       "on the peripheral board.\n");
+	printk("Press button 2 or type \"peripheral\" on the peripheral board.\n");
 	buttons_init();
 #else
 	printk("Type \"central\" on the central board.\n");
-	printk("Type \"peripheral\" or \"coded\" on the peripheral board.\n");
+	printk("Type \"peripheral\" on the peripheral board.\n");
 #endif
-
 }

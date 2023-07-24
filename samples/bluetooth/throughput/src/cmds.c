@@ -289,30 +289,21 @@ static int test_run_cmd(const struct shell *shell, size_t argc,
 static int test_central_cmd(const struct shell *shell, size_t argc,
 			    char **argv)
 {
-	select_role(true, false);
+	select_role(true, NULL);
 	return 0;
 }
 
 static int test_peripheral_cmd(const struct shell *shell, size_t argc,
 			       char **argv)
 {
-	select_role(false, false);
+	select_role(false, test_params.phy_request ? test_params.phy : NULL);
 	return 0;
 }
-
-#if defined(CONFIG_BT_EXT_ADV)
-static int test_peripheral_coded_cmd(const struct shell *shell, size_t argc, char **argv)
-{
-	select_role(false, true);
-	return 0;
-}
-#endif
 
 SHELL_CMD_REGISTER(config, &sub_config, "Configure the example", default_cmd);
 SHELL_CMD_REGISTER(run, NULL, "Run the test", test_run_cmd);
 SHELL_CMD_REGISTER(central, NULL, "Select central role", test_central_cmd);
-SHELL_CMD_REGISTER(peripheral, NULL, "Select peripheral role", test_peripheral_cmd);
-#if defined(CONFIG_BT_EXT_ADV)
-SHELL_CMD_REGISTER(coded, NULL, "Select peripheral role and advertise using coded PHY",
-		   test_peripheral_coded_cmd);
-#endif
+SHELL_CMD_REGISTER(peripheral, NULL,
+		   "Select peripheral role.\n"
+		   "To use extended advertising select PHY first",
+		   test_peripheral_cmd);

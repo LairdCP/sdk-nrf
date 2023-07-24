@@ -8,6 +8,7 @@
 #define THROUGHPUT_MAIN_H_
 
 #include <zephyr/shell/shell.h>
+#include <zephyr/bluetooth/conn.h>
 
 /**
  * @brief Run the test
@@ -26,9 +27,10 @@ int test_run(const struct shell *shell,
  * @brief Set the board into a specific role.
  *
  * @param is_central true for central role, false for peripheral role.
- * @param coded true to advertises using coded PHY
+ * @param phy is NULL for no change (1M), otherwise extended advertising will be attempted.
  */
-void select_role(bool is_central, bool coded);
+void select_role(bool is_central, const struct bt_conn_le_phy_param *phy);
+
 
 enum {
 	PRINT_TYPE_NONE = 0,
