@@ -73,7 +73,10 @@ config MPSL_FEM_NRF21540_GPIO_SPI
 	select NRFX_PPI if SOC_SERIES_NRF52X
 	select NRFX_DPPI if SOC_SERIES_NRF53X
 	select MPSL_FEM_NCS_SUPPORTED_FEM_USED
-	imply MPSL_FEM_POWER_MODEL if MPSL_FEM   # Don't force the model, but make it a default
+	# Don't force the model, but make it a default when not using
+	# Laird driver or when using Laird Driver for CE.
+	imply MPSL_FEM_POWER_MODEL if LCZ_FEM_POWER_MODEL
+	imply MPSL_FEM_POWER_MODEL if MPSL_FEM
 	bool "nRF21540 front-end module in GPIO + SPI mode"
 	help
 	  FEM device is nRF21540 and it uses both GPIO and SPI.
@@ -170,6 +173,7 @@ if MPSL_FEM_POWER_MODEL
 
 choice MPSL_FEM_POWER_MODEL_CHOICE
 	prompt "Model used to split the requested TX power into values used to control the internal state of the FEM"
+	default MPSL_FEM_POWER_MODEL_NRF21540_LAIRD_CONNECTIVITY if LCZ_FEM_POWER_MODEL
 	default MPSL_FEM_POWER_MODEL_NRF21540_USE_BUILTIN if MPSL_FEM_NRF21540_GPIO_SPI
 	help
 	  The model which is used to split the requested TX power into values used to control
@@ -195,6 +199,10 @@ config MPSL_FEM_POWER_MODEL_NRF21540_USE_BUILTIN
 	  (MPSL_FEM_NRF21540_TX_GAIN_DB_POUTA and MPSL_FEM_NRF21540_TX_GAIN_DB_POUTB) to compensate
 	  for the low granularity of the SoC output power. Compensation for other factors such
 	  as temperature, frequency and operating voltage is also done.
+
+config MPSL_FEM_POWER_MODEL_NRF21540_LAIRD_CONNECTIVITY
+	depends on MPSL_FEM_NRF21540_GPIO_SPI
+	bool "Use Laird Connectivity Model"
 
 endchoice	# MPSL_FEM_POWER_MODEL_CHOICE
 

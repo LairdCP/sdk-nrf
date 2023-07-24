@@ -68,5 +68,7 @@ properties:
         description: |
             0 - BL5340PA FCC/IC (United States/Canada)
             1 - BL5340PA RCM (Australia)
+            2 - BL5340PA CE (Europe)
+            4 - BL5340PA Reserved
             The RF power for Bluetooth and 802.15.4 is limited
             by regulatory specifications.
