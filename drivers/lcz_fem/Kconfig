@@ -32,10 +32,26 @@ config LCZ_FEM_REGION
 	range 0 1
 	default $(dt_node_int_prop_int,$(DT_NODELABEL_LCZ_FEM),power-table)
 
-config LCZ_FEM_LOG_POWER_ADJUST_TABLE
-	bool "Print power adjustment table"
-	depends on LOG
+config LCZ_FEM_DEBUG
+	bool
+	depends on LCZ_FEM_LOG_LEVEL_DBG
+	select TIMING_FUNCTIONS
 	help
-	  Resolution of soc may be limited
+	  Helper symbol for compilation.
+
+config LCZ_FEM_DEBUG_POWER_ADJUST
+	bool "Log power values supported by SoC"
+	select LCZ_FEM_DEBUG
+
+config LCZ_FEM_DEBUG_POWER_SPLIT
+	bool "Log power split betewen SoC and FEM"
+	select LCZ_FEM_DEBUG
+
+config LCZ_FEM_DEBUG_MODEL_TIMING
+	bool "Log power split of model and duration of Power model fetch"
+	depends on MPSL_FEM_POWER_MODEL
+	select LCZ_FEM_DEBUG
+	help
+	  Fetch must occur in 2 us or less.
 
 endif
