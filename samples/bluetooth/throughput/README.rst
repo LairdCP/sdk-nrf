@@ -259,6 +259,30 @@ For the peer::
    [local] received 1242945 bytes (1213 KB) in 2511 GATT writes at 1415583 bps
 
 
+Laird Connectivity Version
+==========================
+Buttons not supported on DVK.
+
+Mock BL5340PA FEM control on nrf21540dk_nrf52840:
+
+west build -p -b nrf21540dk_nrf52840 -- -DMOCK_LCZ_FEM=y
+
+nRF5340DK with nRF21540 Shield:
+
+west build -p -b nrf5340dk_nrf5340_cpuapp -- -DSHIELD=nrf21540_ek_fwd -Dhci_rpmsg_SHIELD=nrf21540_ek
+
+Mock BL5340PA FEM control on nRF5340DK with nRF21540 Shield:
+
+west build -p -b nrf5340dk_nrf5340_cpuapp -- -DSHIELD=nrf21540_ek_fwd -Dhci_rpmsg_SHIELD=nrf21540_ek -DMOCK_LCZ_FEM=y
+
+Select internal antenna on BL5340PA
+
+west build -p -b bl5340pa_dvk_cpuapp -- -Dhci_rpmsg_CONFIG_LCZ_FEM_INTERNAL_ANTENNA=y
+
+Select CE configuration on BL5340PA
+
+west build -p -b bl5340pa_dvk_cpuapp -- -Dhci_rpmsg_CONFIG_LCZ_FEM_REGION=2
+
 Dependencies
 *************
 
