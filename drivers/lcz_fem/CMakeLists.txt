@@ -5,6 +5,10 @@ if(CONFIG_LCZ_FEM)
     zephyr_library()
     zephyr_library_sources(fem_gpio.c)
 
+    if(CONFIG_LCZ_FEM_DEBUG)
+        zephyr_library_sources(fem_debug.c)
+    endif()
+
     if(CONFIG_BT OR CONFIG_NRF_802154_SL)
         zephyr_library_sources(fem_power.c)
         zephyr_library_include_directories(power_table)
