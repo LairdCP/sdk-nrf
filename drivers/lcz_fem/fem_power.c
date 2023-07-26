@@ -12,6 +12,7 @@ LOG_MODULE_REGISTER(lcz_fem_power, CONFIG_LCZ_FEM_LOG_LEVEL);
 
 #include <mpsl.h>
 #include <mpsl_tx_power.h>
+#include <mpsl_fem_protocol_api.h>
 
 #include "fem_power_table.h"
 
@@ -25,23 +26,11 @@ LOG_MODULE_REGISTER(lcz_fem_power, CONFIG_LCZ_FEM_LOG_LEVEL);
 #error "TX Gain must be set to 20"
 #endif
 
-#if defined(CONFIG_LCZ_FEM_LOG_POWER_ADJUST_TABLE)
-static void log_power_adjust_table(void)
-{
-	const int8_t list[] = { 30, 20, 12,  11,  10,  9,   8,	 7,   6,   5,  4,
-				3,  2,	1,   0,	  -1,  -2,  -3,	 -4,  -5,  -6, -7,
-				-8, -9, -10, -11, -12, -16, -20, -30, -40, -50 };
-	int i;
-
-	for (i = 0; i < sizeof(list); i++) {
-		LOG_INF("%3d -> %3d", list[i], mpsl_tx_power_radio_supported_power_adjust(list[i]));
-	}
-}
-#endif
-
 static int lcz_fem_power_init(void)
 {
 	int r = 0;
+
+	LOG_INF("%s", POWER_TABLE_STR);
 
 	do {
 		if (!mpsl_is_initialized()) {
@@ -49,8 +38,6 @@ static int lcz_fem_power_init(void)
 			r = -EPERM;
 			break;
 		}
-
-		LOG_INF("%s", POWER_TABLE_STR);
 
 #if defined(CONFIG_BT_CTLR_PHY_CODED)
 		/* Use power tables based on antenna type and region */
@@ -92,10 +79,6 @@ static int lcz_fem_power_init(void)
 	} while (0);
 
 	LOG_INF("%s status: %d", __func__, r);
-
-#if defined(CONFIG_LCZ_FEM_LOG_POWER_ADJUST_TABLE)
-	log_power_adjust_table();
-#endif
 
 	return r;
 }
