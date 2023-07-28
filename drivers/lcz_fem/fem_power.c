@@ -16,15 +16,17 @@ LOG_MODULE_REGISTER(lcz_fem_power, CONFIG_LCZ_FEM_LOG_LEVEL);
 
 #include "fem_power_table.h"
 
-#if defined(CONFIG_MPSL_FEM_NRF21540_GPIO_SPI_SUPPORT) || defined(CONFIG_MPSL_FEM_POWER_MODEL) ||  \
-	defined(CONFIG_MPSL_FEM_NRF21540_RUNTIME_PA_GAIN_CONTROL)
-#error "Unsupported MPSL FEM configuration"
+#if defined(CONFIG_MPSL_FEM_NRF21540_GPIO)
+
+#if CONFIG_MPSL_FEM_NRF21540_TX_GAIN_DB != 20
+#error "TX Gain must be set to 20 because mode pin is grounded"
 #endif
 
-/* Mode pin is grounded on BL5340PA */
-#if CONFIG_MPSL_FEM_NRF21540_TX_GAIN_DB != 20
-#error "TX Gain must be set to 20"
+#if defined(CONFIG_MPSL_FEM_NRF21540_RUNTIME_PA_GAIN_CONTROL)
+#error "Runtime PA control not available in GPIO mode because mode pin is grounded"
 #endif
+
+#endif /* GPIO */
 
 static int lcz_fem_power_init(void)
 {

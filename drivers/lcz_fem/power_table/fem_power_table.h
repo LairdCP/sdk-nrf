@@ -26,7 +26,7 @@ extern const mpsl_tx_power_envelope_t ENV_802154;
 #endif
 
 /* Envelope indices are the BLE channel
- *  .envelope.tx_power_ble[0]  is 2404 MHz
+ *   .envelope.tx_power_ble[0]  is 2404 MHz
  *   .envelope.tx_power_ble[1]     2406
  *   .envelope.tx_power_ble[2]     2408
  *   .envelope.tx_power_ble[17] is 2440
