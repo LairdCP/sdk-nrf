@@ -8,8 +8,9 @@
 #include <zephyr/kernel.h>
 #include <zephyr/init.h>
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/logging/log.h>
 #include <zephyr/irq.h>
+
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(lcz_fem_gpio, CONFIG_LCZ_FEM_LOG_LEVEL);
 
 #include <nrfx_gpiote.h>
@@ -50,9 +51,12 @@ LOG_MODULE_REGISTER(lcz_fem_gpio, CONFIG_LCZ_FEM_LOG_LEVEL);
 #error "FEM pin not found in device tree"
 #endif
 
+#if defined(CONFIG_MPSL_FEM_NRF21540_GPIO)
 static const struct gpio_dt_spec fem_spi_clk = GPIO_DT_SPEC_GET(FEM_GPIO_NODE, spi_clk_gpios);
 static const struct gpio_dt_spec fem_spi_mosi = GPIO_DT_SPEC_GET(FEM_GPIO_NODE, spi_mosi_gpios);
 static const struct gpio_dt_spec fem_spi_miso = GPIO_DT_SPEC_GET(FEM_GPIO_NODE, spi_miso_gpios);
+#endif
+
 static const struct gpio_dt_spec fem_ant_sel = GPIO_DT_SPEC_GET(FEM_GPIO_NODE, ant_sel_gpios);
 
 #define PDN_PIN FEM_PDN_PIN
@@ -92,6 +96,7 @@ static int configure_output(const struct gpio_dt_spec *spec, int value)
 	return r;
 }
 
+#if defined(CONFIG_MPSL_FEM_NRF21540_GPIO)
 static int configure_disconnect(const struct gpio_dt_spec *spec)
 {
 	int r = 0;
@@ -122,6 +127,7 @@ static int configure_disconnect(const struct gpio_dt_spec *spec)
 
 	return r;
 }
+#endif
 
 /* Chip select [antenna select] should follow state of power down. */
 static int setup_follower(nrfx_gpiote_pin_t follower)
@@ -201,6 +207,8 @@ static int fem_gpio_init(void)
 {
 	int r;
 
+	/* If SPI mode is enabled, then the Nordic driver handles errata for SPI signals properly. */
+#if defined(CONFIG_MPSL_FEM_NRF21540_GPIO)
 	/* unused output of FEM (input to SoC) */
 	configure_disconnect(&fem_spi_miso);
 
@@ -208,12 +216,17 @@ static int fem_gpio_init(void)
 	configure_output(&fem_spi_clk, 0);
 	configure_output(&fem_spi_mosi, 0);
 
-	/* signals that must follow PDN due to errata */
+	/* Chip select must follow PDN due to errata. */
 	r = setup_follower(CSN_PIN);
 	LOG_INF("Setup follower for chip select: %d", r);
+#endif
 
+	/* Antenna select can remain low for antenna 1.
+	 * When antenna port 2 is used, it must follow PDN (errata).
+	 */
 	if (IS_ENABLED(CONFIG_LCZ_FEM_INTERNAL_ANTENNA)) {
-		configure_output(&fem_ant_sel, 0);
+		r = configure_output(&fem_ant_sel, 0);
+		LOG_INF("Configured for internal antenna variant: %d", r);
 	} else {
 		r = setup_follower(ANT_PIN);
 		LOG_INF("Configured for external antenna variant: %d", r);
