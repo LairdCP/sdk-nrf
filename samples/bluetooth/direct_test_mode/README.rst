@@ -366,6 +366,33 @@ Use the following command:
 
 .. _dtm_testing:
 
+BL5340 and BL5340PA
+===================
+
+Direction finding is disabled in the overlays.
+
+When using the BL5340PA, the Laird Connectivity FEM driver handles antenna select for internal vs. external antenna variants. A hex file is required for each. Controlling antenna select using custom HCI VS DTM command is not supported because antenna select is part of Laird Connectivity FEM driver node.
+When using the BL5340PA and the nRF connect DTM PC application, CONFIG_DTM_POWER_CONTROL_AUTOMATIC will most likely need to be disabled.
+
+To build for the BL5340.
+
+.. code-block:: console
+
+   west build samples/bluetooth/direct_test_mode -p -b bl5340_dvk_cpunet
+
+To build for the BL5340PA with external antenna.
+
+.. code-block:: console
+
+   west build samples/bluetooth/direct_test_mode -p -b bl5340pa_dvk_cpunet -- -DCONFIG_DTM_POWER_CONTROL_AUTOMATIC=n
+
+
+To build for the internal antenna version without modifying DTS or overlay use the following command.
+
+.. code-block:: console
+
+   west build samples/bluetooth/direct_test_mode -p -b bl5340pa_dvk_cpunet -- -DCONFIG_LCZ_FEM_INTERNAL_ANTENNA=y
+
 Testing
 =======
 
