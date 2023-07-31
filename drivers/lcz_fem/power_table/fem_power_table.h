@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-LairdConnectivity-Clause
  */
 
+#include <mpsl_tx_power.h>
+
 /* The output of the soc is reduced so that the power at the antenna
- * is reduced.
+ * is reduced. Always referenced from 20 dBm.
  */
-#define MPSL_FEM_POWER_REDUCE(p) (CONFIG_MPSL_FEM_NRF21540_TX_GAIN_DB - p)
+#define MPSL_FEM_POWER_REDUCE(p) (20 - p)
 
 extern const char *const POWER_TABLE_STR;
 
