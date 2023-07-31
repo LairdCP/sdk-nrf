@@ -28,9 +28,34 @@ config LCZ_FEM_INTERNAL_ANTENNA
 	default $(dt_node_bool_prop,$(DT_NODELABEL_LCZ_FEM),internal-antenna)
 
 config LCZ_FEM_REGION
-	int
-	range 0 1
+	int "RF compliance region that module will be used in"
+	range 0 3
 	default $(dt_node_int_prop_int,$(DT_NODELABEL_LCZ_FEM),power-table)
+	help
+	  0 - BL5340PA FCC/IC (United States/Canada)
+	  1 - BL5340PA RCM (Australia)
+	  2 - BL5340PA CE (Europe); Dynamic TX power control not supported
+	  3 - BL5340PA Test
+
+config LCZ_FEM_ERRATA_FEB2023
+	bool "Handle production programming error for Feb 2023 devices"
+	default y
+
+config LCZ_FEM_POWER_MODEL
+	bool
+	default y if LCZ_FEM_ERRATA_FEB2023 || LCZ_FEM_REGION=2
+	help
+	  Helper to select MPSL_FEM_POWER_MODEL_NRF21540_LAIRD_CONNECTIVITY
+	  in the Nordic MPSL driver.
+
+if LCZ_FEM_POWER_MODEL
+
+choice MPSL_FEM_CHOICE
+	depends on MPSL_FEM_NRF21540_GPIO_SPI_SUPPORT
+	default MPSL_FEM_NRF21540_GPIO_SPI
+endchoice
+
+endif
 
 config LCZ_FEM_DEBUG
 	bool

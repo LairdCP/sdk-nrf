@@ -172,6 +172,7 @@ if MPSL_FEM_POWER_MODEL
 
 choice MPSL_FEM_POWER_MODEL_CHOICE
 	prompt "Model used to split the requested TX power into values used to control the internal state of the FEM"
+	default MPSL_FEM_POWER_MODEL_NRF21540_LAIRD_CONNECTIVITY if LCZ_FEM_POWER_MODEL
 	default MPSL_FEM_POWER_MODEL_NRF21540_USE_BUILTIN if MPSL_FEM_NRF21540_GPIO_SPI
 	help
 	  The model which is used to split the requested TX power into values used to control
@@ -197,6 +198,10 @@ config MPSL_FEM_POWER_MODEL_NRF21540_USE_BUILTIN
 	  (MPSL_FEM_NRF21540_TX_GAIN_DB_POUTA and MPSL_FEM_NRF21540_TX_GAIN_DB_POUTB) to compensate
 	  for the low granularity of the SoC output power. Compensation for other factors such
 	  as temperature, frequency and operating voltage is also done.
+
+config MPSL_FEM_POWER_MODEL_NRF21540_LAIRD_CONNECTIVITY
+	depends on MPSL_FEM_NRF21540_GPIO_SPI
+	bool "Use Laird Connectivity Model"
 
 endchoice	# MPSL_FEM_POWER_MODEL_CHOICE
 
