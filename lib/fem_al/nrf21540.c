@@ -32,7 +32,6 @@ static struct nrf21540 {
 };
 #endif /* DT_NODE_HAS_PROP(DT_NODELABEL(nrf_radio_fem), ant_sel_gpios) */
 
-
 static int gpio_configure(void)
 {
 	int err = 0;
