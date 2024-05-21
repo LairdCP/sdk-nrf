@@ -39,10 +39,10 @@ LOG_MODULE_REGISTER(lcz_fem_gpio, CONFIG_LCZ_FEM_LOG_LEVEL);
 
 #define FEM_GPIO_NODE DT_NODELABEL(lcz_fem)
 
-#define FEM_ANT_SEL DT_PROP(FEM_GPIO_NODE, ant_sel_gpios)
-#define FEM_SPI_CLK DT_PROP(FEM_GPIO_NODE, spi_clk_gpios)
+#define FEM_ANT_SEL  DT_PROP(FEM_GPIO_NODE, ant_sel_gpios)
+#define FEM_SPI_CLK  DT_PROP(FEM_GPIO_NODE, spi_clk_gpios)
 #define FEM_SPI_MOSI DT_PROP(FEM_GPIO_NODE, spi_mosi_gpios)
-#define FEM_SPI_CSN DT_PROP(FEM_GPIO_NODE, spi_csn_gpios)
+#define FEM_SPI_CSN  DT_PROP(FEM_GPIO_NODE, spi_csn_gpios)
 #define FEM_SPI_MISO DT_PROP(FEM_GPIO_NODE, spi_miso_gpios)
 
 #if !DT_NODE_EXISTS(FEM_ANT_SEL) || !DT_NODE_EXISTS(FEM_SPI_CLK) ||                                \
@@ -62,6 +62,8 @@ static const struct gpio_dt_spec fem_ant_sel = GPIO_DT_SPEC_GET(FEM_GPIO_NODE, a
 #define PDN_PIN FEM_PDN_PIN
 #define CSN_PIN NRF_DT_GPIOS_TO_PSEL(FEM_GPIO_NODE, spi_csn_gpios)
 #define ANT_PIN NRF_DT_GPIOS_TO_PSEL(FEM_GPIO_NODE, ant_sel_gpios)
+
+static nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(0);
 
 static int configure_output(const struct gpio_dt_spec *spec, int value)
 {
@@ -137,21 +139,21 @@ static int setup_follower(nrfx_gpiote_pin_t follower)
 	uint8_t out_channel;
 	uint8_t ppi_channel;
 
-	if (!nrfx_gpiote_is_init()) {
-		err = nrfx_gpiote_init(0);
+	if (!nrfx_gpiote_init_check(&gpiote_inst)) {
+		err = nrfx_gpiote_init(&gpiote_inst, 0);
 		if (err != NRFX_SUCCESS) {
 			LOG_ERR("nrfx_gpiote_init error: 0x%08X", err);
 			return -EINVAL;
 		}
 	}
 
-	err = nrfx_gpiote_channel_alloc(&in_channel);
+	err = nrfx_gpiote_channel_alloc(&gpiote_inst, &in_channel);
 	if (err != NRFX_SUCCESS) {
 		LOG_ERR("Failed to allocate in_channel, error: 0x%08X", err);
 		return -EINVAL;
 	}
 
-	err = nrfx_gpiote_channel_alloc(&out_channel);
+	err = nrfx_gpiote_channel_alloc(&gpiote_inst, &out_channel);
 	if (err != NRFX_SUCCESS) {
 		LOG_ERR("Failed to allocate out_channel, error: 0x%08X", err);
 		return -EINVAL;
@@ -163,7 +165,12 @@ static int setup_follower(nrfx_gpiote_pin_t follower)
 		.trigger = NRFX_GPIOTE_TRIGGER_TOGGLE,
 		.p_in_channel = &in_channel,
 	};
-	err = nrfx_gpiote_input_configure(PDN_PIN, NULL, &trigger_config, NULL);
+	const nrfx_gpiote_input_pin_config_t input_config = {
+		.p_pull_config = NULL,
+		.p_trigger_config = &trigger_config,
+		.p_handler_config = NULL,
+	};
+	err = nrfx_gpiote_input_configure(&gpiote_inst, PDN_PIN, &input_config);
 	if (err != NRFX_SUCCESS) {
 		LOG_ERR("nrfx_gpiote_input_configure error: 0x%08X", err);
 		return -EINVAL;
@@ -180,14 +187,14 @@ static int setup_follower(nrfx_gpiote_pin_t follower)
 		.polarity = NRF_GPIOTE_POLARITY_TOGGLE,
 		.init_val = NRF_GPIOTE_INITIAL_VALUE_LOW,
 	};
-	err = nrfx_gpiote_output_configure(follower, &output_config, &task_config);
+	err = nrfx_gpiote_output_configure(&gpiote_inst, follower, &output_config, &task_config);
 	if (err != NRFX_SUCCESS) {
 		LOG_ERR("nrfx_gpiote_output_configure error: 0x%08X", err);
 		return -EINVAL;
 	}
 
-	nrfx_gpiote_trigger_enable(PDN_PIN, true);
-	nrfx_gpiote_out_task_enable(follower);
+	nrfx_gpiote_trigger_enable(&gpiote_inst, PDN_PIN, true);
+	nrfx_gpiote_out_task_enable(&gpiote_inst, follower);
 
 	err = nrfx_gppi_channel_alloc(&ppi_channel);
 	if (err != NRFX_SUCCESS) {
@@ -195,8 +202,9 @@ static int setup_follower(nrfx_gpiote_pin_t follower)
 		return -EINVAL;
 	}
 
-	nrfx_gppi_channel_endpoints_setup(ppi_channel, nrfx_gpiote_in_event_addr_get(PDN_PIN),
-					  nrfx_gpiote_out_task_addr_get(follower));
+	nrfx_gppi_channel_endpoints_setup(ppi_channel,
+					  nrfx_gpiote_in_event_address_get(&gpiote_inst, PDN_PIN),
+					  nrfx_gpiote_out_task_address_get(&gpiote_inst, follower));
 
 	nrfx_gppi_channels_enable(BIT(ppi_channel));
 
@@ -207,7 +215,8 @@ static int fem_gpio_init(void)
 {
 	int r;
 
-	/* If SPI mode is enabled, then the Nordic driver handles errata for SPI signals properly. */
+	/* If SPI mode is enabled, then the Nordic driver handles errata for SPI signals properly.
+	 */
 #if defined(CONFIG_MPSL_FEM_NRF21540_GPIO)
 	/* unused output of FEM (input to SoC) */
 	configure_disconnect(&fem_spi_miso);
