@@ -416,7 +416,7 @@ BL5340 and BL5340PA
 
 Direction finding is disabled in the overlays.
 
-When using the BL5340PA, the Laird Connectivity FEM driver handles antenna select for internal vs. external antenna variants. A hex file is required for each. Controlling antenna select using custom HCI VS DTM command is not supported because antenna select is part of Laird Connectivity FEM driver node.
+When using the BL5340PA, the Ezurio (formerly Laird Connectivity) FEM driver handles antenna select for internal vs. external antenna variants. A hex file is required for each. Controlling antenna select using custom HCI VS DTM command is not supported because antenna select is part of Ezurio FEM driver node.
 When using the BL5340PA and the nRF connect DTM PC application, CONFIG_DTM_POWER_CONTROL_AUTOMATIC will most likely need to be disabled.
 
 To build for the BL5340.
