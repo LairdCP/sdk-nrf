@@ -14,6 +14,13 @@ LOG_MODULE_REGISTER(lcz_fem_power_model_ce, CONFIG_LCZ_FEM_LOG_LEVEL);
 #include <mpsl_fem_protocol_api.h>
 #include <mpsl_fem_power_model.h>
 
+/* This currently can't happen because of how Kconfig and CMakeLists are setup,
+ * but was left as a reminder.
+ */
+#if defined(CONFIG_MPSL_FEM_NRF21540_GPIO)
+#error "SPI mode required for CE Power Model"
+#endif /* GPIO */
+
 /* Value of nRF5340 output (SoC) with 18 dB of gain at the FEM to achieve CE compliance. */
 #define SOC_POWER (-16)
 
