@@ -24,14 +24,13 @@ LOG_MODULE_REGISTER(lcz_fem_power_model_ce, CONFIG_LCZ_FEM_LOG_LEVEL);
 /* Value of nRF5340 output (SoC) with 18 dB of gain at the FEM to achieve CE compliance. */
 #define SOC_POWER (-16)
 
-/* The gain of the FEM is always set to 23 regardless of the 20 dB calibration point.
+/* The gain of the FEM is always set to 23 (~18 dB) regardless of the 20 dB calibration point.
  * The same value is used for all voltages, temperatures, channels, and modulations.
  */
 static mpsl_fem_power_model_output_t flat = {
 	.achieved_pwr = 4,
 	.soc_pwr = SOC_POWER,
-	.fem.gain_db = 18,
-	.fem.private_setting = 23,
+	.fem_pa_power_control = 23,
 };
 
 /* For debug purposes, print out the calibration values.
@@ -39,13 +38,15 @@ static mpsl_fem_power_model_output_t flat = {
  */
 static void log_calibration_values(const mpsl_fem_calibration_data_t *p_calibration_data)
 {
-	mpsl_fem_gain_t gain;
+	mpsl_fem_calibration_point_t calibration_point;
 
-	gain = p_calibration_data->nrf21540_gpio_spi.pouta;
-	LOG_INF("Calibration A: gain dB: %d private: %u", gain.gain_db, gain.private_setting);
+	calibration_point = p_calibration_data->nrf21540_gpio_spi.pouta;
+	LOG_INF("Calibration A: gain dB: %d register: %u", calibration_point.gain_db,
+		calibration_point.fem_pa_power_control);
 
-	gain = p_calibration_data->nrf21540_gpio_spi.poutb;
-	LOG_INF("Calibration B: gain dB: %d private: %u", gain.gain_db, gain.private_setting);
+	calibration_point = p_calibration_data->nrf21540_gpio_spi.poutb;
+	LOG_INF("Calibration B: gain dB: %d register: %u", calibration_point.gain_db,
+		calibration_point.fem_pa_power_control);
 }
 
 static void laird_ce_model_init(const mpsl_fem_calibration_data_t *p_calibration_data)

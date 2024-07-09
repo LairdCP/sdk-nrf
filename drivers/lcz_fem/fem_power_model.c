@@ -19,9 +19,9 @@ LOG_MODULE_REGISTER(lcz_fem_power_model, CONFIG_LCZ_FEM_LOG_LEVEL);
 
 #define LCZ_FEM_POWER_REQ_MIN -40
 #define LCZ_FEM_POWER_REQ_MAX 20
-#define LCZ_FEM_GAIN 20
+#define LCZ_FEM_GAIN	      20
 
-#define MIN_FEM_SETTING 18
+#define MIN_FEM_SETTING	   18
 #define ERRATA_FEM_SETTING 23
 
 static mpsl_fem_power_model_output_t table[61];
@@ -41,7 +41,7 @@ static void build_power_table(const mpsl_fem_calibration_data_t *p_calibration_d
 	/* Enter a safe value for the gain to override boards that were
 	 * incorrectly programmed during production of Feb 2023.
 	 */
-	fem_setting = p_calibration_data->nrf21540_gpio_spi.pouta.private_setting;
+	fem_setting = p_calibration_data->nrf21540_gpio_spi.pouta.fem_pa_power_control;
 	if (fem_setting < MIN_FEM_SETTING) {
 		LOG_WRN("Overriding FEM setting of %u with %u", fem_setting, ERRATA_FEM_SETTING);
 		fem_setting = ERRATA_FEM_SETTING;
@@ -57,8 +57,7 @@ static void build_power_table(const mpsl_fem_calibration_data_t *p_calibration_d
 
 		p->achieved_pwr = soc_actual + LCZ_FEM_GAIN;
 		p->soc_pwr = soc_actual;
-		p->fem.gain_db = LCZ_FEM_GAIN;
-		p->fem.private_setting = fem_setting;
+		p->fem_pa_power_control = fem_setting;
 		if (IS_ENABLED(CONFIG_LCZ_FEM_LOG_POWER_MODEL)) {
 			LOG_DBG("%2u req: %3d actual: %3d radio: %3d ", i, req, p->achieved_pwr,
 				p->soc_pwr);
@@ -72,13 +71,15 @@ static void build_power_table(const mpsl_fem_calibration_data_t *p_calibration_d
  */
 static void log_calibration_values(const mpsl_fem_calibration_data_t *p_calibration_data)
 {
-	mpsl_fem_gain_t gain;
+	mpsl_fem_calibration_point_t calibration_point;
 
-	gain = p_calibration_data->nrf21540_gpio_spi.pouta;
-	LOG_INF("Calibration A: gain dB: %d private: %u", gain.gain_db, gain.private_setting);
+	calibration_point = p_calibration_data->nrf21540_gpio_spi.pouta;
+	LOG_INF("Calibration A: gain dB: %d register: %u", calibration_point.gain_db,
+		calibration_point.fem_pa_power_control);
 
-	gain = p_calibration_data->nrf21540_gpio_spi.poutb;
-	LOG_INF("Calibration B: gain dB: %d private: %u", gain.gain_db, gain.private_setting);
+	calibration_point = p_calibration_data->nrf21540_gpio_spi.poutb;
+	LOG_INF("Calibration B: gain dB: %d register: %u", calibration_point.gain_db,
+		calibration_point.fem_pa_power_control);
 }
 
 static void laird_model_init(const mpsl_fem_calibration_data_t *p_calibration_data)

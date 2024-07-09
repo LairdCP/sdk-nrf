@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Laird Connectivity
+ * Copyright (c) 2023-2024 Laird Connectivity
  *
  * When using RTT with network CPU, connect using viewer and then
  * reset from application shell.
@@ -49,15 +49,15 @@ static void log_power_split(void)
 	LOG_DBG("Antenna Power");
 
 	/*
-     * Private setting will be blank if GPIO only mode is used.
-     * Power model allows private setting to be changed.
+     * Register setting will be blank if GPIO only mode is used.
+     * Power model allows register setting to be changed.
      * Runtime PA gain control allows switching between 20/10.
      */
 	for (i = 0; i < ARRAY_SIZE(REQUEST); i++) {
 		req = REQUEST[i];
 		actual = mpsl_fem_tx_power_split(req, &split, FREQ, CEILING);
-		LOG_DBG("req: %3d actual: %3d radio: %3d gain: %2d private: %2u", req, actual,
-			split.radio_tx_power, split.fem.gain_db, split.fem.private_setting);
+		LOG_DBG("req: %3d actual: %3d radio: %3d register: %2u", req, actual,
+			split.radio_tx_power, split.fem_pa_power_control);
 	}
 }
 
@@ -77,8 +77,8 @@ static void log_model_timing(void)
 	LOG_DBG("Model timing (2 us max)");
 
 	/*
-     * Private setting will be blank if GPIO only mode is used.
-     * Power model allows private setting to be changed.
+     * Register setting will be blank if GPIO only mode is used.
+     * Power model allows register setting to be changed.
      * Runtime PA gain control allows switching between 20/10.
      */
 	for (i = 0; i < ARRAY_SIZE(REQUEST); i++) {
@@ -90,13 +90,13 @@ static void log_model_timing(void)
 		irq_unlock(key);
 		total_cycles = timing_cycles_get(&start_time, &end_time);
 		total_ns = timing_cycles_to_ns(total_cycles);
-		LOG_DBG("req: %3d actual: %3d radio: %3d gain: %2d private: %2u compute_time: %llu ns",
-			req, output.achieved_pwr, output.soc_pwr, output.fem.gain_db,
-			output.fem.private_setting, total_ns);
+		LOG_DBG("req: %3d actual: %3d radio: %3d register: %2u compute_time: %llu ns",
+			req, output.achieved_pwr, output.soc_pwr, 
+			output.fem_pa_power_control, total_ns);
 	}
 }
 
-static int lcz_fem_debug_init(void))
+static int lcz_fem_debug_init(void)
 {
 	if (IS_ENABLED(CONFIG_LCZ_FEM_DEBUG_POWER_ADJUST)) {
 		log_power_adjust_table();
