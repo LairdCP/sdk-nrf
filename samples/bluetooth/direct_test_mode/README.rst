@@ -424,20 +424,20 @@ To build for the BL5340.
 
 .. code-block:: console
 
-   west build samples/bluetooth/direct_test_mode -p -b bl5340_dvk_cpunet
+   west build samples/bluetooth/direct_test_mode -p -b bl5340_dvk/nrf5340/cpunet
 
 To build for the BL5340PA with external antenna.
 
 .. code-block:: console
 
-   west build samples/bluetooth/direct_test_mode -p -b bl5340pa_dvk_cpunet -- -DCONFIG_DTM_POWER_CONTROL_AUTOMATIC=n
+   west build samples/bluetooth/direct_test_mode -p -b bl5340pa_dvk/nrf5340/cpunet -- -DCONFIG_DTM_POWER_CONTROL_AUTOMATIC=n
 
 
 To build for the internal antenna version without modifying DTS or overlay use the following command.
 
 .. code-block:: console
 
-   west build samples/bluetooth/direct_test_mode -p -b bl5340pa_dvk_cpunet -- -DCONFIG_LCZ_FEM_INTERNAL_ANTENNA=y
+   west build samples/bluetooth/direct_test_mode -p -b bl5340pa_dvk/nrf5340/cpunet -- -DCONFIG_DTM_POWER_CONTROL_AUTOMATIC=n -DCONFIG_LCZ_FEM_INTERNAL_ANTENNA=y
 
 Testing
 =======

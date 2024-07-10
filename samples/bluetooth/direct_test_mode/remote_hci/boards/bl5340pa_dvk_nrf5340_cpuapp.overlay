@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2023 Nordic Semiconductor ASA
+ * Copyright (c) 2024 Ezurio
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/ {
+	chosen {
+		ncs,dtm-uart = &uart0;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+};
