@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2023 Laird Connectivity
+ * Copyright (c) 2023-2024 Ezurio
  *
  * Power Model that handles Feb2023 Errata.
  *
- * SPDX-License-Identifier: LicenseRef-LairdConnectivity-Clause
+ * SPDX-License-Identifier: LicenseRef-Ezurio-Clause
  */
 
 #include <zephyr/kernel.h>

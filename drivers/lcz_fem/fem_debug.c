@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2023-2024 Laird Connectivity
+ * Copyright (c) 2023-2024 Ezurio
  *
  * When using RTT with network CPU, connect using viewer and then
  * reset from application shell.
  *
- * SPDX-License-Identifier: LicenseRef-LairdConnectivity-Clause
+ * SPDX-License-Identifier: LicenseRef-Ezurio-Clause
  */
 
 #include <zephyr/kernel.h>

@@ -1,5 +1,5 @@
-# Copyright (c) 2023 Laird Connectivity.
-# SPDX-License-Identifier: LicenseRef-LairdConnectivity-Clause
+# Copyright (c) 2023-2024 Ezurio
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 
 if(CONFIG_LCZ_FEM)
     zephyr_library()

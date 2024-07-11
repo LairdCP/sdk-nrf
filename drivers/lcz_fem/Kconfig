@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2023 Laird Connectivity
-# SPDX-License-Identifier: LicenseRef-LairdConnectivity-Clause
+# Copyright (c) 2023-2024 Ezurio
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 #
 
 DT_COMPAT_LCZ_FEM := lairdconnect,nrf21540-lcz-fem
